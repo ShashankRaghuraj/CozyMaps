@@ -51,11 +51,15 @@ type MapProps = {
 } & Omit<MapLibreGL.MapOptions, "container" | "style">;
 
 const DefaultLoader = () => (
-  <div className="absolute inset-0 flex items-center justify-center">
-    <div className="flex gap-1">
-      <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-pulse" />
-      <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-pulse [animation-delay:150ms]" />
-      <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-pulse [animation-delay:300ms]" />
+  <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm z-50 transition-all duration-500">
+    <div className="flex flex-col items-center gap-3">
+      <div className="relative size-12">
+        <div className="absolute inset-0 rounded-full border-4 border-primary/30" />
+        <div className="absolute inset-0 rounded-full border-4 border-t-primary animate-spin" />
+      </div>
+      <p className="text-sm font-medium text-muted-foreground animate-pulse">
+        Initializing Map...
+      </p>
     </div>
   </div>
 );

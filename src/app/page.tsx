@@ -1,15 +1,45 @@
 "use client";
 
-import {
-  Map,
-  MapMarker,
-  MarkerContent,
-  MarkerLabel,
-  MarkerPopup,
-} from "@/components/ui/map";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
-import { Star, Navigation, Clock, ExternalLink } from "lucide-react";
+import { Star, Navigation, Clock, ExternalLink, Loader2 } from "lucide-react";
 import Image from "next/image";
+import { MapController } from "@/components/map-controller";
+import { WeatherWidget } from "@/components/weather-widget";
+import { WeatherEffects } from "@/components/weather-effects";
+
+const Map = dynamic(() => import("@/components/ui/map").then((mod) => mod.Map), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full w-full items-center justify-center bg-neutral-100 dark:bg-neutral-900">
+      <div className="flex flex-col items-center gap-2">
+        <Loader2 className="size-8 animate-spin text-muted-foreground" />
+        <p className="text-sm text-muted-foreground">Loading Map...</p>
+      </div>
+    </div>
+  ),
+});
+
+const MapMarker = dynamic(
+  () => import("@/components/ui/map").then((mod) => mod.MapMarker),
+  { ssr: false }
+);
+const MarkerContent = dynamic(
+  () => import("@/components/ui/map").then((mod) => mod.MarkerContent),
+  { ssr: false }
+);
+const MarkerLabel = dynamic(
+  () => import("@/components/ui/map").then((mod) => mod.MarkerLabel),
+  { ssr: false }
+);
+const MarkerPopup = dynamic(
+  () => import("@/components/ui/map").then((mod) => mod.MarkerPopup),
+  { ssr: false }
+);
+const MapControls = dynamic(
+  () => import("@/components/ui/map").then((mod) => mod.MapControls),
+  { ssr: false }
+);
 
 const places = [
   {
@@ -55,68 +85,63 @@ const places = [
 
 export default function Home() {
   return (
-    <div className="flex h-screen w-full flex-col items-center justify-center bg-neutral-100 p-4 dark:bg-neutral-900">
-      <div className="mb-4 text-center">
-        <h1 className="text-3xl font-bold tracking-tight">Map Component Demo</h1>
-        <p className="text-muted-foreground">
-          Testing the mapcn map component with Next.js
-        </p>
-      </div>
-
-      <div className="relative h-[600px] w-full max-w-4xl overflow-hidden rounded-xl border shadow-xl">
-        <Map center={[-73.98, 40.74]} zoom={11}>
-          {places.map((place) => (
-            <MapMarker key={place.id} longitude={place.lng} latitude={place.lat}>
-              <MarkerContent>
-                <div className="size-5 rounded-full bg-rose-500 border-2 border-white shadow-lg cursor-pointer hover:scale-110 transition-transform" />
-                <MarkerLabel position="bottom">{place.label}</MarkerLabel>
-              </MarkerContent>
-              <MarkerPopup className="p-0 w-62">
-                <div className="relative h-32 overflow-hidden rounded-t-md">
-                  <Image
-                    fill
-                    src={place.image}
-                    alt={place.name}
-                    className="object-cover"
-                  />
+    <div className="h-screen w-full bg-neutral-100 dark:bg-neutral-900">
+      <Map center={[-73.98, 40.74]} zoom={11}>
+        <MapControls showZoom={true} position="bottom-right" />
+        <MapController />
+        <WeatherWidget />
+        <WeatherEffects />
+        {places.map((place) => (
+          <MapMarker key={place.id} longitude={place.lng} latitude={place.lat}>
+            <MarkerContent>
+              <div className="size-5 rounded-full bg-rose-500 border-2 border-white shadow-lg cursor-pointer hover:scale-110 transition-transform" />
+              <MarkerLabel position="bottom">{place.label}</MarkerLabel>
+            </MarkerContent>
+            <MarkerPopup className="p-0 w-62">
+              <div className="relative h-32 overflow-hidden rounded-t-md">
+                <Image
+                  fill
+                  src={place.image}
+                  alt={place.name}
+                  className="object-cover"
+                />
+              </div>
+              <div className="space-y-2 p-3">
+                <div>
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    {place.category}
+                  </span>
+                  <h3 className="font-semibold text-foreground leading-tight">
+                    {place.name}
+                  </h3>
                 </div>
-                <div className="space-y-2 p-3">
-                  <div>
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      {place.category}
+                <div className="flex items-center gap-3 text-sm">
+                  <div className="flex items-center gap-1">
+                    <Star className="size-3.5 fill-amber-400 text-amber-400" />
+                    <span className="font-medium">{place.rating}</span>
+                    <span className="text-muted-foreground">
+                      ({place.reviews.toLocaleString()})
                     </span>
-                    <h3 className="font-semibold text-foreground leading-tight">
-                      {place.name}
-                    </h3>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm">
-                    <div className="flex items-center gap-1">
-                      <Star className="size-3.5 fill-amber-400 text-amber-400" />
-                      <span className="font-medium">{place.rating}</span>
-                      <span className="text-muted-foreground">
-                        ({place.reviews.toLocaleString()})
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                    <Clock className="size-3.5" />
-                    <span>{place.hours}</span>
-                  </div>
-                  <div className="flex gap-2 pt-1">
-                    <Button size="sm" className="flex-1 h-8">
-                      <Navigation className="size-3.5 mr-1.5" />
-                      Directions
-                    </Button>
-                    <Button size="sm" variant="outline" className="h-8">
-                      <ExternalLink className="size-3.5" />
-                    </Button>
                   </div>
                 </div>
-              </MarkerPopup>
-            </MapMarker>
-          ))}
-        </Map>
-      </div>
+                <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <Clock className="size-3.5" />
+                  <span>{place.hours}</span>
+                </div>
+                <div className="flex gap-2 pt-1">
+                  <Button size="sm" className="flex-1 h-8">
+                    <Navigation className="size-3.5 mr-1.5" />
+                    Directions
+                  </Button>
+                  <Button size="sm" variant="outline" className="h-8">
+                    <ExternalLink className="size-3.5" />
+                  </Button>
+                </div>
+              </div>
+            </MarkerPopup>
+          </MapMarker>
+        ))}
+      </Map>
     </div>
   );
 }
