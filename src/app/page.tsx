@@ -7,6 +7,7 @@ import Image from "next/image";
 import { MapController } from "@/components/map-controller";
 import { WeatherWidget } from "@/components/weather-widget";
 import { WeatherEffects } from "@/components/weather-effects";
+import { BusRouteManager } from "@/components/bus-route-manager";
 
 const Map = dynamic(() => import("@/components/ui/map").then((mod) => mod.Map), {
   ssr: false,
@@ -91,6 +92,7 @@ export default function Home() {
         <MapController />
         <WeatherWidget />
         <WeatherEffects />
+        <BusRouteManager />
         {places.map((place) => (
           <MapMarker key={place.id} longitude={place.lng} latitude={place.lat}>
             <MarkerContent>
